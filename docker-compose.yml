@@ -15,12 +15,25 @@ services:
             - persistent:/var/lib/mysql
         networks:
             - default
-    www:
+    apache1:
         build: .
-        ports: 
-            - "80:80"
+        container_name: apache1
+        ports:
+            - "82:80"
         volumes:
-            - ./www:/var/www/html
+            - ./www/web1:/var/www/html
+        links:
+            - db
+        networks:
+            - default
+
+    apache2:
+        build: .
+        container_name: apache2
+        ports:
+            - "81:80"
+        volumes:
+            - ./www/web2:/var/www/html
         links:
             - db
         networks:
@@ -34,6 +47,13 @@ services:
         environment:
             MYSQL_USER: root
             MYSQL_PASSWORD: test
-            MYSQL_ROOT_PASSWORD: test 
+            MYSQL_ROOT_PASSWORD: test
+    haproxy:
+        image: haproxytech/haproxy-alpine
+        volumes:
+            - ./:/usr/local/etc/haproxy:ro
+        ports:
+            - "80:80"
+            - "8404:8404"
 volumes:
     persistent:
